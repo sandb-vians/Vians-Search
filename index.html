@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vians' Search</title>
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --input-bg: #f5f5f5;
+            --input-border: #dddddd;
+            --button-bg: #4285f4;
+            --button-text: #ffffff;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #231f20;
+            --text-color: #f0f0f0;
+            --input-bg: #2d2d2d;
+            --input-border: #444444;
+            --button-bg: #5a95f5;
+            --button-text: #ffffff;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .help-button {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .help-button:hover {
+            opacity: 0.9;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            opacity: 0.9;
+        }
+
+        .logo {
+            width: 300px;
+            height: auto;
+            margin-bottom: 30px;
+            transition: filter 0.3s;
+        }
+
+        .search-container {
+            display: flex;
+            width: 100%;
+            max-width: 600px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 12px 40px 12px 15px;
+            border: 1px solid var(--input-border);
+            border-right: none;
+            border-radius: 5px 0 0 5px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+        }
+
+        .clear-button {
+            position: absolute;
+            right: 120px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 5px;
+            display: none;
+        }
+
+        .clear-button:hover {
+            color: #666;
+        }
+
+        .search-button {
+            padding: 12px 20px;
+            background-color: var(--button-bg);
+            color: var(--button-text);
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .search-button:hover {
+            opacity: 0.9;
+        }
+
+        /* Стили для модального окна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: var(--bg-color);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--input-border);
+            padding-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-color);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-body {
+            line-height: 1.5;
+        }
+
+        .help-link {
+            color: var(--button-bg);
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .help-link:hover {
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <button class="help-button" id="helpButton">Помощь</button>
+    <button class="theme-toggle" id="themeToggle">Переключиться на тёмную тему</button>
+    
+    <img src="https://s.iimg.su/s/24/gQAlDBixUNc94hlIXWPNDWy5gHPY0Nlg11mz7Jbe.png" alt="Логотип" class="logo" id="logo">
+    
+    <div class="search-container">
+        <input type="text" class="search-input" id="searchInput" placeholder="Введите любой товар...">
+        <button class="clear-button" id="clearButton">×</button>
+        <button class="search-button" id="searchButton">Поиск</button>
+    </div>
+
+    <!-- Модальное окно помощи -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Помощь</h2>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <p>Vians' Search - это сервис, где вы можете ввести любой товар и он найдётся мигом сразу в трёх самых популярных маркетплейсах - Я. Маркет, Ozon и Wildberries!</p>
+                <p>Сайт открывает один маркетплейс вместо трёх? Проверьте, чтобы сайту было разрешено открывать всплывающие окна. См. <span class="help-link" id="popupHelp">как разрешить браузеру открывать всплывающие окна</span>.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переменные для управления темой
+        const themeToggle = document.getElementById('themeToggle');
+        const logo = document.getElementById('logo');
+        const body = document.body;
+        
+        // Элементы модального окна
+        const helpButton = document.getElementById('helpButton');
+        const helpModal = document.getElementById('helpModal');
+        const modalClose = document.getElementById('modalClose');
+        const popupHelp = document.getElementById('popupHelp');
+        
+        // Проверяем сохранённую тему в localStorage
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            enableDarkTheme();
+        }
+        
+        // Обработчик переключения темы
+        themeToggle.addEventListener('click', () => {
+            if (body.getAttribute('data-theme') === 'dark') {
+                disableDarkTheme();
+            } else {
+                enableDarkTheme();
+            }
+        });
+        
+        function enableDarkTheme() {
+            body.setAttribute('data-theme', 'dark');
+            logo.src = 'https://s.iimg.su/s/24/gRVmoLSxIEaa3oapIHXcz3jqAvyq8El2cdPu8TAA.png';
+            themeToggle.textContent = 'Переключиться на светлую тему';
+            localStorage.setItem('theme', 'dark');
+        }
+        
+        function disableDarkTheme() {
+            body.removeAttribute('data-theme');
+            logo.src = 'https://s.iimg.su/s/24/gQAlDBixUNc94hlIXWPNDWy5gHPY0Nlg11mz7Jbe.png';
+            themeToggle.textContent = 'Переключиться на тёмную тему';
+            localStorage.setItem('theme', 'light');
+        }
+        
+        // Обработчик поиска
+        const searchButton = document.getElementById('searchButton');
+        const searchInput = document.getElementById('searchInput');
+        const clearButton = document.getElementById('clearButton');
+        
+        // Показать/скрыть кнопку очистки
+        searchInput.addEventListener('input', function() {
+            clearButton.style.display = this.value ? 'block' : 'none';
+        });
+        
+        // Очистка поля поиска
+        clearButton.addEventListener('click', function() {
+            searchInput.value = '';
+            clearButton.style.display = 'none';
+            searchInput.focus();
+        });
+        
+        // Поиск по нажатию кнопки
+        searchButton.addEventListener('click', performSearch);
+        
+        // Поиск по нажатию Enter
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                performSearch();
+            }
+        });
+        
+        function performSearch() {
+            const query = searchInput.value.trim();
+            if (!query) return;
+            
+            // Маркетплейсы
+            const marketplaces = [
+                `https://market.yandex.ru/search?text=${encodeURIComponent(query)}`,
+                `https://www.ozon.ru/search/?text=${encodeURIComponent(query)}`,
+                `https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(query)}`
+            ];
+            
+            // Открываем вкладки
+            marketplaces.forEach(url => {
+                window.open(url, '_blank');
+            });
+        }
+        
+        // Открытие модального окна помощи
+        helpButton.addEventListener('click', function() {
+            helpModal.style.display = 'flex';
+        });
+        
+        // Закрытие модального окна
+        modalClose.addEventListener('click', function() {
+            helpModal.style.display = 'none';
+        });
+        
+        // Закрытие модального окна при клике вне его
+        helpModal.addEventListener('click', function(e) {
+            if (e.target === helpModal) {
+                helpModal.style.display = 'none';
+            }
+        });
+        
+        // Открытие ссылки с помощью по всплывающим окнам
+        popupHelp.addEventListener('click', function() {
+            window.open('https://clck.ru/3PSBvJ', '_blank');
+        });
+    </script>
+</body>
+</html>
