@@ -131,7 +131,6 @@
             opacity: 0.9;
         }
 
-        /* Стили для модального окна */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -197,6 +196,29 @@
         .help-link:hover {
             opacity: 0.8;
         }
+
+        .virus-total {
+            display: flex;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--input-border);
+        }
+
+        .virus-total-link {
+            color: #28a745;
+            text-decoration: none;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+
+        .virus-total-link:hover {
+            text-decoration: underline;
+        }
+
+        .shield-icon {
+            font-size: 18px;
+        }
     </style>
 </head>
 <body>
@@ -206,12 +228,11 @@
     <img src="https://s.iimg.su/s/24/gQAlDBixUNc94hlIXWPNDWy5gHPY0Nlg11mz7Jbe.png" alt="Логотип" class="logo" id="logo">
     
     <div class="search-container">
-        <input type="text" class="search-input" id="searchInput" placeholder="Введите любой товар...">
+        <input type="text" class="search-input" id="searchInput" placeholder="Введите название товара...">
         <button class="clear-button" id="clearButton">×</button>
         <button class="search-button" id="searchButton">Поиск</button>
     </div>
 
-    <!-- Модальное окно помощи -->
     <div class="modal-overlay" id="helpModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -221,29 +242,28 @@
             <div class="modal-body">
                 <p>Vians' Search - это сервис, где вы можете ввести любой товар и он найдётся мигом сразу в трёх самых популярных маркетплейсах - Я. Маркет, Ozon и Wildberries!</p>
                 <p>Сайт открывает один маркетплейс вместо трёх? Проверьте, чтобы сайту было разрешено открывать всплывающие окна. См. <span class="help-link" id="popupHelp">как разрешить браузеру открывать всплывающие окна</span>.</p>
+                <div class="virus-total">
+                    <a href="https://clck.ru/3PUjyP" class="virus-total-link" target="_blank">Проверено VirusTotal</a>
+                    <span class="shield-icon">🛡️</span>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Переменные для управления темой
         const themeToggle = document.getElementById('themeToggle');
         const logo = document.getElementById('logo');
         const body = document.body;
-        
-        // Элементы модального окна
         const helpButton = document.getElementById('helpButton');
         const helpModal = document.getElementById('helpModal');
         const modalClose = document.getElementById('modalClose');
         const popupHelp = document.getElementById('popupHelp');
         
-        // Проверяем сохранённую тему в localStorage
         const currentTheme = localStorage.getItem('theme') || 'light';
         if (currentTheme === 'dark') {
             enableDarkTheme();
         }
         
-        // Обработчик переключения темы
         themeToggle.addEventListener('click', () => {
             if (body.getAttribute('data-theme') === 'dark') {
                 disableDarkTheme();
@@ -266,27 +286,22 @@
             localStorage.setItem('theme', 'light');
         }
         
-        // Обработчик поиска
         const searchButton = document.getElementById('searchButton');
         const searchInput = document.getElementById('searchInput');
         const clearButton = document.getElementById('clearButton');
         
-        // Показать/скрыть кнопку очистки
         searchInput.addEventListener('input', function() {
             clearButton.style.display = this.value ? 'block' : 'none';
         });
         
-        // Очистка поля поиска
         clearButton.addEventListener('click', function() {
             searchInput.value = '';
             clearButton.style.display = 'none';
             searchInput.focus();
         });
         
-        // Поиск по нажатию кнопки
         searchButton.addEventListener('click', performSearch);
         
-        // Поиск по нажатию Enter
         searchInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 performSearch();
@@ -297,37 +312,31 @@
             const query = searchInput.value.trim();
             if (!query) return;
             
-            // Маркетплейсы
             const marketplaces = [
                 `https://market.yandex.ru/search?text=${encodeURIComponent(query)}`,
                 `https://www.ozon.ru/search/?text=${encodeURIComponent(query)}`,
                 `https://www.wildberries.ru/catalog/0/search.aspx?search=${encodeURIComponent(query)}`
             ];
             
-            // Открываем вкладки
             marketplaces.forEach(url => {
                 window.open(url, '_blank');
             });
         }
         
-        // Открытие модального окна помощи
         helpButton.addEventListener('click', function() {
             helpModal.style.display = 'flex';
         });
         
-        // Закрытие модального окна
         modalClose.addEventListener('click', function() {
             helpModal.style.display = 'none';
         });
         
-        // Закрытие модального окна при клике вне его
         helpModal.addEventListener('click', function(e) {
             if (e.target === helpModal) {
                 helpModal.style.display = 'none';
             }
         });
         
-        // Открытие ссылки с помощью по всплывающим окнам
         popupHelp.addEventListener('click', function() {
             window.open('https://clck.ru/3PSBvJ', '_blank');
         });
